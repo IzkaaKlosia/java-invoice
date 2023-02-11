@@ -19,13 +19,13 @@ public abstract class Product {
             throw new IllegalArgumentException("Name cannot be empty");
         }
 
-        //if(name == null || name.equals ("")){
+        //if(name == null || name.equals("")){
         //            throw new IllegalArgumentException("wrong name");
-        //        }
+        //        } - inna metoda, najpierw musi byc null sprawdzony, zeby moc pozniej wartosci sprawdzac
         if(price == null){
             throw new IllegalArgumentException("price cannot be null");
         }
-        if(price.compareTo(BigDecimal.ZERO)<0){
+        if(price.compareTo(BigDecimal.ZERO)==-1){
             throw new IllegalArgumentException("price cannot be less than 0");
         }
 
