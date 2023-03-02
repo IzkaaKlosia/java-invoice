@@ -13,23 +13,42 @@ public class Invoice {
 
 
     public void addProduct(Product product) {
-        // TODO: implement
+        if(product == null) throw new IllegalArgumentException();
+        this.products.put(product, 1);
     }
 
     public void addProduct(Product product, Integer quantity) {
-        // TODO: implement
+        if(product == null || quantity <=0) throw new IllegalArgumentException();
         this.products.put(product, quantity);
     }
 
     public BigDecimal getNetPrice() {
-        return BigDecimal.ZERO;
+        BigDecimal netPrices = BigDecimal.ZERO;
+        for (Map.Entry<Product, Integer> e : this.products.entrySet()) {
+            Product p = e.getKey();
+            BigDecimal price = p.getPrice().multiply(BigDecimal.valueOf(e.getValue()));
+            netPrices= netPrices.add(price);
+        }
+        return netPrices;
     }
 
     public BigDecimal getTax() {
-        return BigDecimal.ZERO;
+        BigDecimal taxes = BigDecimal.ZERO;
+        for (Map.Entry<Product, Integer> e : this.products.entrySet()) {
+            Product p = e.getKey();
+            BigDecimal tax = p.getPriceWithTax().subtract(p.getPrice());
+            taxes= taxes.add(tax);
+        }
+        return taxes;
     }
 
     public BigDecimal getTotal() {
-        return null;
+        BigDecimal prices = BigDecimal.ZERO;
+        for (Map.Entry<Product, Integer> e : this.products.entrySet()) {
+            Product p = e.getKey();
+            BigDecimal price = p.getPriceWithTax().multiply(BigDecimal.valueOf(e.getValue()));
+            prices= prices.add(price);
+        }
+        return prices;
     }
 }
