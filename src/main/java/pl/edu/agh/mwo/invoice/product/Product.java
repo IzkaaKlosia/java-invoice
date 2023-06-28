@@ -10,45 +10,29 @@ public abstract class Product {
     private final BigDecimal taxPercent;
 
     protected Product(String name, BigDecimal price, BigDecimal tax) {
-
-        if(name == null){
-            throw new IllegalArgumentException("wrong name");
+        if (name == null || name.equals("")
+                || price == null || tax == null || tax.compareTo(new BigDecimal(0)) < 0
+                || price.compareTo(new BigDecimal(0)) < 0) {
+            throw new IllegalArgumentException();
         }
-
-        if(name.isEmpty()){
-            throw new IllegalArgumentException("Name cannot be empty");
-        }
-
-        //if(name == null || name.equals("")){
-        //            throw new IllegalArgumentException("wrong name");
-        //        } - inna metoda, najpierw musi byc null sprawdzony, zeby moc pozniej wartosci sprawdzac
-        if(price == null){
-            throw new IllegalArgumentException("price cannot be null");
-        }
-        if(price.compareTo(BigDecimal.ZERO)==-1){
-            throw new IllegalArgumentException("price cannot be less than 0");
-        }
-
         this.name = name;
         this.price = price;
         this.taxPercent = tax;
-
     }
 
     public String getName() {
-        return this.name;
+        return name;
     }
 
     public BigDecimal getPrice() {
-        return this.price;
+        return price;
     }
 
     public BigDecimal getTaxPercent() {
-        return this.taxPercent;
+        return taxPercent;
     }
 
     public BigDecimal getPriceWithTax() {
-        BigDecimal priceWithTax = this.price.multiply(this.taxPercent).add(this.price);
-        return priceWithTax;
+        return price.multiply(taxPercent).add(price);
     }
 }

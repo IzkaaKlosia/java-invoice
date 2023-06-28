@@ -2,53 +2,86 @@ package pl.edu.agh.mwo.invoice;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Random;
 
 import pl.edu.agh.mwo.invoice.product.Product;
 
 public class Invoice {
-    //private Collection<Product> products = new ArrayList<>(); - jedna z mozliwosci ale srednio sie tu sprawdzi
+    private Map<Product, Integer> products = new LinkedHashMap<Product, Integer>();
 
-    private Map<Product,Integer> products = new HashMap<>();
+    private Integer invoiceNumber;
 
+    public Invoice() {
+        invoiceNumber = getRandomNumber();
+    }
 
     public void addProduct(Product product) {
-        if(product == null) throw new IllegalArgumentException();
-        this.products.put(product, 1);
+        addProduct(product, 1);
     }
 
     public void addProduct(Product product, Integer quantity) {
-        if(product == null || quantity <=0) throw new IllegalArgumentException();
-        this.products.put(product, quantity);
+        if (product == null || quantity <= 0) {
+            throw new IllegalArgumentException();
+        }
+        boolean foundedProduct = false;
+        for ( Map.Entry<Product, Integer> entry : products.entrySet()) {
+            Product existingProduct = entry.getKey();
+            Integer existingQuantity = entry.getValue();
+
+            if (existingProduct.getName() == product.getName()){
+                int newQuantity = quantity + existingQuantity;
+                products.put(product, newQuantity);
+                foundedProduct = true;
+            }
+        }
+        if(!foundedProduct) {
+            products.put(product, quantity);
+        }
     }
 
-    public BigDecimal getNetPrice() {
-        BigDecimal netPrices = BigDecimal.ZERO;
-        for (Map.Entry<Product, Integer> e : this.products.entrySet()) {
-            Product p = e.getKey();
-            BigDecimal price = p.getPrice().multiply(BigDecimal.valueOf(e.getValue()));
-            netPrices= netPrices.add(price);
+    public BigDecimal getNetTotal() {
+        BigDecimal totalNet = BigDecimal.ZERO;
+        for (Product product : products.keySet()) {
+            BigDecimal quantity = new BigDecimal(products.get(product));
+            totalNet = totalNet.add(product.getPrice().multiply(quantity));
         }
-        return netPrices;
+        return totalNet;
     }
 
-    public BigDecimal getTax() {
-        BigDecimal taxes = BigDecimal.ZERO;
-        for (Map.Entry<Product, Integer> e : this.products.entrySet()) {
-            Product p = e.getKey();
-            BigDecimal tax = p.getPriceWithTax().subtract(p.getPrice());
-            taxes= taxes.add(tax);
-        }
-        return taxes;
+    public BigDecimal getTaxTotal() {
+        return getGrossTotal().subtract(getNetTotal());
     }
 
-    public BigDecimal getTotal() {
-        BigDecimal prices = BigDecimal.ZERO;
-        for (Map.Entry<Product, Integer> e : this.products.entrySet()) {
-            Product p = e.getKey();
-            BigDecimal price = p.getPriceWithTax().multiply(BigDecimal.valueOf(e.getValue()));
-            prices= prices.add(price);
+    public BigDecimal getGrossTotal() {
+        BigDecimal totalGross = BigDecimal.ZERO;
+        for (Product product : products.keySet()) {
+            BigDecimal quantity = new BigDecimal(products.get(product));
+            totalGross = totalGross.add(product.getPriceWithTax().multiply(quantity));
         }
-        return prices;
+        return totalGross;
+    }
+
+    public int getRandomNumber() {
+        return new Random().nextInt(10000) + 1;
+    }
+
+    public int getNumber(){
+        return invoiceNumber;
+    }
+
+    public String print() {
+        StringBuilder sB = new StringBuilder();
+        sB.append("Numer Faktury: " + getNumber() +"\n");
+
+        for ( Map.Entry<Product, Integer> entry : products.entrySet()) {
+            Product product = entry.getKey();
+            Integer quantity = entry.getValue();
+            sB.append(product.getName() + " "+ quantity + " " + product.getPrice() + "\n");
+        }
+        sB.append("Liczba pozycji: " + products.size());
+
+        return sB.toString();
     }
 }
